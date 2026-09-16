@@ -29,7 +29,15 @@ service cloud.firestore {
         && request.resource.data.text is string
         && request.resource.data.text.size() > 0
         && request.resource.data.text.size() <= 1000
-        && request.resource.data.keys().hasOnly(['text', 'uid', 'displayName', 'createdAt']);
+        && request.resource.data.keys().hasOnly(['text', 'uid', 'displayName', 'createdAt', 'replyTo'])
+        && (!request.resource.data.keys().hasAny(['replyTo'])
+          || (request.resource.data.replyTo is map
+            && request.resource.data.replyTo.keys().hasOnly(['id', 'displayName', 'text'])
+            && request.resource.data.replyTo.id is string
+            && request.resource.data.replyTo.id.size() > 0
+            && request.resource.data.replyTo.displayName is string
+            && request.resource.data.replyTo.text is string
+            && request.resource.data.replyTo.text.size() <= 240));
       allow update, delete: if false;
     }
 
