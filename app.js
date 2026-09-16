@@ -1,13 +1,20 @@
-const dialog = document.querySelector('#signin-dialog');
-const triggers = document.querySelectorAll('[data-signin]');
-const closeButton = dialog.querySelector('.close');
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
+import { getAuth, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, sendEmailVerification, updateProfile, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js';
 
-triggers.forEach((trigger) => {
-  trigger.addEventListener('click', () => dialog.showModal());
-});
+const firebaseConfig={apiKey:'AIzaSyCxaE30H00NrEvjRZbp2Qa1V2RCzpVQ8Y4',authDomain:'soro-7f7f3.firebaseapp.com',projectId:'soro-7f7f3',storageBucket:'soro-7f7f3.firebasestorage.app',messagingSenderId:'793394051299',appId:'1:793394051299:web:f259b281218375d3c82dd6'};
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app),google=new GoogleAuthProvider();
+const dialog=document.querySelector('#auth-dialog'),form=document.querySelector('#auth-form'),message=document.querySelector('#auth-message'),gate=document.querySelector('#gate-screen');
+let mode='signin';
 
-closeButton.addEventListener('click', () => dialog.close());
+function setMessage(text,error=false){message.textContent=text;message.classList.toggle('error',error)}
+function setMode(next){mode=next;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));document.querySelector('#name-wrap').classList.toggle('hidden',mode!=='signup');document.querySelector('#auth-title').textContent=mode==='signup'?'Create account':'Sign in';document.querySelector('#auth-copy').textContent=mode==='signup'?'Create an account. Crew access begins after administrator approval.':'Approved crew members can enter SỌ̀RỌ̀.';document.querySelector('#email-submit').textContent=mode==='signup'?'Create account':'Sign in';document.querySelector('#password').autocomplete=mode==='signup'?'new-password':'current-password';setMessage('')}
+async function ensureMember(user){const ref=doc(db,'members',user.uid),snap=await getDoc(ref);if(!snap.exists()){await setDoc(ref,{uid:user.uid,email:user.email||'',displayName:user.displayName||'',photoURL:user.photoURL||'',role:'member',status:'pending',provider:user.providerData?.[0]?.providerId||'password',createdAt:serverTimestamp(),updatedAt:serverTimestamp()});return {status:'pending'}}return snap.data()}
+function showGate(status){gate.classList.remove('hidden');const title=document.querySelector('#gate-title'),copy=document.querySelector('#gate-copy'),eyebrow=document.querySelector('#gate-eyebrow');if(status==='approved'){eyebrow.textContent='ACCESS APPROVED';title.textContent='Welcome to SỌ̀RỌ̀';copy.textContent='Your crew access is approved. The private messenger workspace is coming in the next stage.'}else if(status==='rejected'){eyebrow.textContent='ACCESS NOT APPROVED';title.textContent='Membership not approved';copy.textContent='This account does not currently have access to the SỌ̀RỌ̀ crew network.'}else if(status==='suspended'){eyebrow.textContent='ACCESS SUSPENDED';title.textContent='Account suspended';copy.textContent='Your SỌ̀RỌ̀ crew access is currently suspended.'}else{eyebrow.textContent='CREW ACCESS';title.textContent='Account pending approval';copy.textContent='Your account has been created. A SỌ̀RỌ̀ administrator must approve your membership before you can enter the private crew network.'}}
+function hideGate(){gate.classList.add('hidden')}
 
-dialog.addEventListener('click', (event) => {
-  if (event.target === dialog) dialog.close();
-});
+document.querySelectorAll('[data-auth-open]').forEach(b=>b.addEventListener('click',()=>dialog.showModal()));document.querySelector('.close').addEventListener('click',()=>dialog.close());document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));document.querySelector('#gate-signout').addEventListener('click',()=>signOut(auth));
+form.addEventListener('submit',async e=>{e.preventDefault();setMessage('Working…');const email=document.querySelector('#email').value.trim(),password=document.querySelector('#password').value,name=document.querySelector('#display-name').value.trim();try{if(mode==='signup'){const cred=await createUserWithEmailAndPassword(auth,email,password);if(name)await updateProfile(cred.user,{displayName:name});await ensureMember(cred.user);await sendEmailVerification(cred.user);dialog.close();showGate('pending')}else{const cred=await signInWithEmailAndPassword(auth,email,password);if(!cred.user.emailVerified){await sendEmailVerification(cred.user);setMessage('Verify your email first. A new verification email has been sent.',true);return}const member=await ensureMember(cred.user);dialog.close();showGate(member.status)}}catch(err){setMessage((err.message||'Authentication failed.').replace('Firebase: ','').replace(/\s*\(auth\/[^)]+\)\.?/,'').trim(),true)}});
+document.querySelector('#google-auth').addEventListener('click',async()=>{setMessage('Connecting to Google…');try{const cred=await signInWithPopup(auth,google),member=await ensureMember(cred.user);dialog.close();showGate(member.status)}catch(err){setMessage((err.message||'Google sign-in failed.').replace('Firebase: ','').replace(/\s*\(auth\/[^)]+\)\.?/,'').trim(),true)}});
+onAuthStateChanged(auth,async user=>{if(!user){hideGate();return}try{if(user.providerData.some(p=>p.providerId==='password')&&!user.emailVerified){showGate('pending');document.querySelector('#gate-title').textContent='Verify your email';document.querySelector('#gate-copy').textContent='Check your inbox and verify your email address. After verification, sign in again. Your membership will then remain pending until an administrator approves it.';return}const member=await ensureMember(user);showGate(member.status)}catch(e){console.error(e)}});
+setMode('signin');
