@@ -2,7 +2,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.2.1/firebas
 import { getAuth, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, sendEmailVerification, updateProfile, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js';
 
-const firebaseConfig={apiKey:'AIzaSyCxaE30H00NrEvjRZbp2Qa1V2RCzpVQ8Y4',authDomain:'soro-7f7f3.firebaseapp.com',projectId:'soro-7f7f3',storageBucket:'soro-7f7f3.firebasestorage.app',messagingSenderId:'793394051299',appId:'1:793394051299:web:f259b281218375d3c82dd6'};
+const firebaseConfig={apiKey:'AIzaSyCxaE30HO0NrEvjRZbp2Qa1V2RCzpVQ8Y4',authDomain:'soro-7f7f3.firebaseapp.com',projectId:'soro-7f7f3',storageBucket:'soro-7f7f3.firebasestorage.app',messagingSenderId:'793394051299',appId:'1:793394051299:web:f259b281218375d3c82dd6'};
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app),google=new GoogleAuthProvider();
 google.setCustomParameters({prompt:'select_account'});
 const dialog=document.querySelector('#auth-dialog'),form=document.querySelector('#auth-form'),message=document.querySelector('#auth-message'),gate=document.querySelector('#gate-screen');
