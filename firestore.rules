@@ -34,7 +34,7 @@ service cloud.firestore {
     }
 
     match /{document=**} {
-      allow read, write: if approved();
+      allow read, write: if false;
     }
   }
 }
