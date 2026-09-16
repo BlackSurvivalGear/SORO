@@ -3,6 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
     function member(uid) { return get(/databases/$(database)/documents/members/$(uid)); }
+    function isOwner() { return signedIn() && member(request.auth.uid).data.status == 'approved' && member(request.auth.uid).data.role == 'owner'; }
     function isAdmin() { return signedIn() && member(request.auth.uid).data.status == 'approved' && member(request.auth.uid).data.role in ['owner', 'admin']; }
     function approved() { return signedIn() && member(request.auth.uid).data.status == 'approved'; }
 
@@ -12,8 +13,13 @@ service cloud.firestore {
         && request.resource.data.status == 'pending'
         && request.resource.data.role == 'member';
       allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
+      allow update: if isOwner()
+        || (isAdmin()
+          && resource.data.role != 'owner'
+          && request.resource.data.role == resource.data.role
+          && request.resource.data.uid == resource.data.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt']));
+      allow delete: if isOwner() && resource.data.role != 'owner';
     }
 
     match /{document=**} {
