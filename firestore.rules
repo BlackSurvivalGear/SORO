@@ -83,6 +83,35 @@ service cloud.firestore {
         allow update: if false;
         allow delete: if isOwner() || (isAdmin() && room(roomId).data.createdBy == request.auth.uid);
       }
+      match /events/{eventId} {
+        allow read: if canEnterRoom(roomId);
+        allow create: if canEnterRoom(roomId)
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.title is string && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 80
+          && request.resource.data.date is string && request.resource.data.time is string
+          && request.resource.data.location is string && request.resource.data.location.size() > 0 && request.resource.data.location.size() <= 120
+          && request.resource.data.description is string && request.resource.data.description.size() > 0 && request.resource.data.description.size() <= 500
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.keys().hasOnly(['title','date','time','location','description','uid','displayName','createdAt']);
+        allow update: if false;
+        allow delete: if isOwner() || resource.data.uid == request.auth.uid || (isAdmin() && room(roomId).data.createdBy == request.auth.uid);
+      }
+
+    }
+
+
+    match /globalEvents/{eventId} {
+      allow read: if approved();
+      allow create: if approved()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.title is string && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 80
+        && request.resource.data.date is string && request.resource.data.time is string
+        && request.resource.data.location is string && request.resource.data.location.size() > 0 && request.resource.data.location.size() <= 120
+        && request.resource.data.description is string && request.resource.data.description.size() > 0 && request.resource.data.description.size() <= 500
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.keys().hasOnly(['title','date','time','location','description','uid','displayName','createdAt']);
+      allow update: if false;
+      allow delete: if isOwner() || (signedIn() && resource.data.uid == request.auth.uid);
     }
 
     match /messages/{messageId} {
