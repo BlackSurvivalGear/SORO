@@ -1,4 +1,4 @@
-const africanProverbs = [
+export const africanProverbs = [
 
 {flag:"🇬🇭",nation:"Ghana",text:"Wisdom is like a baobab tree; no one individual can embrace it."},
 {flag:"🇳🇬",nation:"Nigeria",text:"Until the lion learns to write, every story will glorify the hunter."},
