@@ -27,6 +27,67 @@ service cloud.firestore {
       allow delete: if isOwner() && resource.data.role != 'owner';
     }
 
+    function room(roomId) { return get(/databases/$(database)/documents/rooms/$(roomId)); }
+    function canEnterRoom(roomId) {
+      return approved() && (
+        room(roomId).data.access == 'open'
+        || room(roomId).data.createdBy == request.auth.uid
+        || isOwner()
+        || request.auth.uid in room(roomId).data.memberUids
+      ) && room(roomId).data.status == 'active';
+    }
+    function canManageRoomDoc() {
+      return isOwner() || (isAdmin() && resource.data.createdBy == request.auth.uid);
+    }
+
+    match /rooms/{roomId} {
+      allow read: if approved();
+      allow create: if isAdmin()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 60
+        && request.resource.data.description is string
+        && request.resource.data.description.size() <= 240
+        && request.resource.data.access in ['open','invite']
+        && request.resource.data.status == 'active'
+        && request.resource.data.memberUids is list
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.keys().hasOnly(['name','description','access','status','createdBy','createdByName','memberUids','createdAt','updatedAt']);
+      allow update: if canManageRoomDoc()
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 60
+        && request.resource.data.description is string
+        && request.resource.data.description.size() <= 240
+        && request.resource.data.access in ['open','invite']
+        && request.resource.data.status in ['active','closed']
+        && request.resource.data.memberUids is list
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','description','access','status','memberUids','updatedAt']);
+      allow delete: if canManageRoomDoc();
+
+      match /messages/{messageId} {
+        allow read: if canEnterRoom(roomId);
+        allow create: if canEnterRoom(roomId)
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 1000
+          && request.resource.data.keys().hasOnly(['text','uid','displayName','createdAt','replyTo'])
+          && (!request.resource.data.keys().hasAny(['replyTo'])
+            || (request.resource.data.replyTo is map
+              && request.resource.data.replyTo.keys().hasOnly(['id','displayName','text'])
+              && request.resource.data.replyTo.id is string
+              && request.resource.data.replyTo.displayName is string
+              && request.resource.data.replyTo.text is string
+              && request.resource.data.replyTo.text.size() <= 240));
+        allow update, delete: if false;
+      }
+    }
+
     match /messages/{messageId} {
       allow read: if approved();
       allow create: if approved()
