@@ -56,7 +56,10 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time
         && request.resource.data.updatedAt == request.time
         && request.resource.data.keys().hasOnly(['name','description','access','status','createdBy','createdByName','memberUids','enabledResources','createdAt','updatedAt']);
-      allow update: if canManageRoomDoc()
+      allow update: if (canManageRoomDoc()
+          && request.resource.data.enabledResources is list
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['enabledResources','updatedAt']))
+        || (canManageRoomDoc()
         && request.resource.data.createdBy == resource.data.createdBy
         && request.resource.data.createdAt == resource.data.createdAt
         && request.resource.data.name is string
@@ -68,7 +71,7 @@ service cloud.firestore {
         && request.resource.data.status in ['active','closed']
         && request.resource.data.memberUids is list
         && (!request.resource.data.keys().hasAny(['enabledResources']) || request.resource.data.enabledResources is list)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','description','access','status','memberUids','enabledResources','updatedAt']);
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','description','access','status','memberUids','enabledResources','updatedAt']));
       allow delete: if canManageRoomDoc();
 
       match /messages/{messageId} {
