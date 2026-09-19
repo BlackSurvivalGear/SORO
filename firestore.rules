@@ -42,7 +42,8 @@ service cloud.firestore {
 
     match /rooms/{roomId} {
       allow read: if approved();
-      allow create: if isAdmin()
+      allow create: if approved()
+        && member(request.auth.uid).data.role in ['owner', 'admin']
         && request.resource.data.createdBy == request.auth.uid
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0
