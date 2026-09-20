@@ -59,3 +59,18 @@
 /* Keep street-map presentation dark while retaining OSM road and place detail. */
 .member-map canvas{filter:brightness(.58) saturate(.72) contrast(1.18)}
 .soro-location-pin{filter:none!important}
+
+
+/* Compact approved/pending welcome gate on phones without affecting admin dashboards. */
+@media(max-width:600px){
+  .gate-screen{padding:12px;place-items:start center}
+  .gate-card:not(:has(#admin-panel:not(.hidden))){width:100%;max-width:430px;margin:auto;padding:18px 16px;border-radius:20px}
+  .gate-card:not(:has(#admin-panel:not(.hidden))) .gate-logo{width:min(120px,34vw);margin-bottom:10px;border-radius:14px}
+  .gate-card:not(:has(#admin-panel:not(.hidden))) .gate-member-profile{margin:4px 0 10px;gap:8px}
+  .gate-card:not(:has(#admin-panel:not(.hidden))) .gate-member-avatar{width:36px;height:36px}
+  .gate-card:not(:has(#admin-panel:not(.hidden))) .gate-member-profile strong{font-size:.9rem}
+  .gate-card:not(:has(#admin-panel:not(.hidden))) .eyebrow{font-size:.66rem;margin:6px 0}
+  .gate-card:not(:has(#admin-panel:not(.hidden))) h2{font-size:clamp(1.65rem,8vw,2.15rem);line-height:1.05;margin:8px 0 10px}
+  .gate-card:not(:has(#admin-panel:not(.hidden))) p:not(.eyebrow){font-size:.92rem;line-height:1.45;margin:0 auto 16px;max-width:34rem}
+  .gate-card:not(:has(#admin-panel:not(.hidden))) #enter-crew{margin:0;padding:12px 22px}
+}
