@@ -51,3 +51,5 @@
 .soro-dark-tiles{filter:invert(1) hue-rotate(180deg) brightness(.84) contrast(1.12) saturate(.32)}
 
 .mobile-menu-toggle{display:none}@media(max-width:800px){.mobile-menu-toggle{display:inline-flex}.room-header-actions{flex-wrap:wrap;justify-content:flex-end}}
+
+.member-map{position:relative}.map-attribution{position:absolute;right:8px;bottom:6px;z-index:12;padding:3px 6px;border-radius:5px;background:#000c;color:#ddd;font-size:11px;line-height:1.2}.map-attribution a{color:#fff}.soro-location-pin{width:20px;height:20px;border:3px solid #111;border-radius:50% 50% 50% 0;transform:rotate(-45deg);padding:0;box-shadow:0 2px 7px #000a;cursor:pointer;background:#c79a45}.soro-location-pin.mine{background:#fff;border-color:#c79a45}.soro-location-pin span{display:block;width:6px;height:6px;margin:4px;border-radius:50%;background:#111}.soro-location-pin.mine span{background:#111}
