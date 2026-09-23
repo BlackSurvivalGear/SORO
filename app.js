@@ -101,6 +101,11 @@ function pinIcon(color){return L.divIcon({className:'soro-circle-pin-wrap',html:
 function pinPopup(snapshot,roomId){
   const pin=snapshot.data(),content=document.createElement('div'),title=document.createElement('strong'),note=document.createElement('p'),author=document.createElement('small');
   content.className='soro-pin-details';title.textContent=pin.title;note.textContent=pin.note||'';author.textContent='Pinned by '+(pin.displayName||'Circle member');content.append(title);if(pin.note)content.append(note);content.append(author);
+  if(Number.isFinite(pin.latitude)&&pin.latitude>=-90&&pin.latitude<=90&&Number.isFinite(pin.longitude)&&pin.longitude>=-180&&pin.longitude<=180){
+    const directions=document.createElement('a');directions.className='secondary small soro-directions-link';directions.textContent='Directions';
+    directions.href='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(pin.latitude+','+pin.longitude);
+    directions.target='_blank';directions.rel='noopener noreferrer';content.append(directions)
+  }
   if(canRemoveCirclePin(pin,roomId)){
     const edit=document.createElement('button'),remove=document.createElement('button'),form=document.createElement('form'),message=document.createElement('small');edit.type='button';edit.className='secondary small';edit.textContent='Edit pin';form.className='soro-pin-edit hidden';
     const titleLabel=document.createElement('label'),titleInput=document.createElement('input');titleLabel.textContent='Title';titleInput.name='title';titleInput.maxLength=80;titleInput.required=true;titleInput.value=pin.title;titleLabel.append(titleInput);
