@@ -87,3 +87,5 @@
 .soro-marker-details{min-width:150px;color:#171717}.soro-marker-details strong{font-size:14px}.soro-marker-details p{margin:5px 0}.soro-marker-details small{color:#555}
 .member-map .leaflet-control-attribution{background:#090b0add;color:#aaa}
 .member-map .leaflet-control-attribution a{color:#d7b56d}
+
+.soro-marker-coordinates{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;user-select:text}
