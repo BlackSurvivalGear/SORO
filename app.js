@@ -107,15 +107,13 @@ function pinPopup(snapshot,roomId){
     const directions=document.createElement('button');directions.type='button';directions.className='secondary small soro-directions-link';directions.textContent='Directions';
     directions.addEventListener('click',()=>{
       if(!navigator.geolocation||!window.isSecureContext){setMapStatus('Directions need your current GPS location and HTTPS.');return}
-      const routeTab=window.open('about:blank','_blank');if(routeTab)routeTab.opener=null;
       directions.disabled=true;setMapStatus('Finding your current location for directions…');
       navigator.geolocation.getCurrentPosition(position=>{
         directions.disabled=false;const {latitude,longitude}=position.coords;
-        if(!Number.isFinite(latitude)||!Number.isFinite(longitude)){routeTab?.close();setMapStatus('Could not get a valid GPS location for directions.');return}
+        if(!Number.isFinite(latitude)||!Number.isFinite(longitude)){setMapStatus('Could not get a valid GPS location for directions.');return}
         const url='https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(latitude+','+longitude)+'&destination='+encodeURIComponent(pin.latitude+','+pin.longitude);
-        if(routeTab&&!routeTab.closed)routeTab.location.replace(url);else window.location.assign(url);
-        setMapStatus('Directions opened from your current GPS location.')
-      },error=>{directions.disabled=false;routeTab?.close();setMapStatus(error.code===1?'Allow location access to get directions from your current position.':'Could not get your current GPS position. Try My Location, then Directions again.')},{enableHighAccuracy:true,maximumAge:0,timeout:20000})
+        window.location.assign(url)
+      },error=>{directions.disabled=false;setMapStatus(error.code===1?'Allow location access to get directions from your current position.':'Could not get your current GPS position. Try My Location, then Directions again.')},{enableHighAccuracy:true,maximumAge:0,timeout:20000})
     });content.append(directions)
   }
   if(canRemoveCirclePin(pin,roomId)){
