@@ -102,9 +102,19 @@ function pinPopup(snapshot,roomId){
   const pin=snapshot.data(),content=document.createElement('div'),title=document.createElement('strong'),note=document.createElement('p'),author=document.createElement('small');
   content.className='soro-pin-details';title.textContent=pin.title;note.textContent=pin.note||'';author.textContent='Pinned by '+(pin.displayName||'Circle member');content.append(title);if(pin.note)content.append(note);content.append(author);
   if(Number.isFinite(pin.latitude)&&pin.latitude>=-90&&pin.latitude<=90&&Number.isFinite(pin.longitude)&&pin.longitude>=-180&&pin.longitude<=180){
-    const directions=document.createElement('a');directions.className='secondary small soro-directions-link';directions.textContent='Directions';
-    directions.href='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(pin.latitude+','+pin.longitude);
-    directions.target='_blank';directions.rel='noopener noreferrer';content.append(directions)
+    const directions=document.createElement('button');directions.type='button';directions.className='secondary small soro-directions-link';directions.textContent='Directions';
+    directions.addEventListener('click',()=>{
+      if(!navigator.geolocation||!window.isSecureContext){setMapStatus('Directions need your current GPS location and HTTPS.');return}
+      const routeTab=window.open('about:blank','_blank');if(routeTab)routeTab.opener=null;
+      directions.disabled=true;setMapStatus('Finding your current location for directions…');
+      navigator.geolocation.getCurrentPosition(position=>{
+        directions.disabled=false;const {latitude,longitude}=position.coords;
+        if(!Number.isFinite(latitude)||!Number.isFinite(longitude)){routeTab?.close();setMapStatus('Could not get a valid GPS location for directions.');return}
+        const url='https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(latitude+','+longitude)+'&destination='+encodeURIComponent(pin.latitude+','+pin.longitude);
+        if(routeTab&&!routeTab.closed)routeTab.location.replace(url);else window.location.assign(url);
+        setMapStatus('Directions opened from your current GPS location.')
+      },error=>{directions.disabled=false;routeTab?.close();setMapStatus(error.code===1?'Allow location access to get directions from your current position.':'Could not get your current GPS position. Try My Location, then Directions again.')},{enableHighAccuracy:true,maximumAge:0,timeout:20000})
+    });content.append(directions)
   }
   if(canRemoveCirclePin(pin,roomId)){
     const edit=document.createElement('button'),remove=document.createElement('button'),form=document.createElement('form'),message=document.createElement('small');edit.type='button';edit.className='secondary small';edit.textContent='Edit pin';form.className='soro-pin-edit hidden';
