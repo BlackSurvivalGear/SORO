@@ -94,6 +94,8 @@
 
 /* Leaflet loads its stylesheet after this file; keep map popups legible either way. */
 .member-map .leaflet-popup-content-wrapper,.member-map .leaflet-popup-tip{background:#171717;color:#fff}
+.member-map .soro-marker-details{color:#fff}
+.member-map .soro-marker-details small{color:#bbb}
 .member-map .soro-pin-details{color:#fff}
 .member-map .soro-pin-details small{color:#bbb}
 .member-map .soro-pin-details .secondary{color:#fff;border-color:#777;background:#292929}
