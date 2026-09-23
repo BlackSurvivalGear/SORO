@@ -109,7 +109,7 @@
 /* A viewer-controlled player over the chat, clear of the message composer. */
 .chat-layout .room-shell{position:relative}
 .live-news-panel{position:absolute;right:16px;bottom:100px;z-index:30;width:min(360px,calc(100% - 32px));background:#141414;border:1px solid #6b5327;border-radius:14px;box-shadow:0 16px 42px #000c;overflow:hidden;color:#fff}
-.live-news-head{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#211b10;color:var(--gold)}
+.live-news-head{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#211b10;color:var(--gold);cursor:move;touch-action:none;user-select:none}
 .live-news-head>div,.live-news-controls{display:flex;align-items:center;gap:8px}
 .live-news-head button,.live-news-controls button{border:1px solid #665126;background:#191919;color:#fff;border-radius:7px;cursor:pointer;padding:5px 10px}
 .live-news-head button:focus-visible,.live-news-controls button:focus-visible,.live-news-panel a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
@@ -117,6 +117,10 @@
 .live-news-panel iframe{display:block;width:100%;aspect-ratio:16/9;border:0;border-radius:8px;background:#000}
 .live-news-panel a{display:inline-block;margin-top:8px;color:var(--gold);font-size:.76rem}
 .live-news-panel.minimized .live-news-content{display:none}
+.live-news-panel.fullscreen{inset:0!important;width:100%;height:100%;border-radius:0;display:flex;flex-direction:column}
+.live-news-panel.fullscreen .live-news-content{flex:1;min-height:0;display:flex;flex-direction:column}
+.live-news-panel.fullscreen iframe{flex:1;min-height:0;aspect-ratio:auto}
+.live-news-panel.fullscreen a{flex:none}
 @media(max-width:800px){.room-header-actions{grid-template-columns:repeat(3,auto);grid-template-areas:"menu menu menu" "news circles signout"}.room-header-actions #live-news-toggle{grid-area:news}.live-news-panel{bottom:84px;right:10px;width:min(330px,calc(100% - 20px))}}
 @media(max-width:800px){.room-header>div:first-child{min-width:0}.room-header h2{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
 @media(max-width:390px){.room-header-actions .small{padding:7px 8px;font-size:.7rem}.room-header h2{font-size:1rem}}
