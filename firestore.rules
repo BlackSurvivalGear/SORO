@@ -209,14 +209,14 @@ service cloud.firestore {
         && request.resource.data.points is list
         && request.resource.data.points.size() >= 2
         && request.resource.data.points.size() <= 200
-        && request.resource.data.points[0] is list
-        && request.resource.data.points[0].size() == 2
-        && request.resource.data.points[0][0] is number
-        && request.resource.data.points[0][0] >= -90
-        && request.resource.data.points[0][0] <= 90
-        && request.resource.data.points[0][1] is number
-        && request.resource.data.points[0][1] >= -180
-        && request.resource.data.points[0][1] <= 180
+        && request.resource.data.points[0] is map
+        && request.resource.data.points[0].keys().hasOnly(['lat','lng'])
+        && request.resource.data.points[0].lat is number
+        && request.resource.data.points[0].lat >= -90
+        && request.resource.data.points[0].lat <= 90
+        && request.resource.data.points[0].lng is number
+        && request.resource.data.points[0].lng >= -180
+        && request.resource.data.points[0].lng <= 180
         && request.resource.data.createdAt == request.time
         && request.resource.data.keys().hasOnly(['uid','displayName','title','points','createdAt']);
       allow delete: if canUseDrawings() && (resource.data.uid == request.auth.uid || canManageDrawings());
