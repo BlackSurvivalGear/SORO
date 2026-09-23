@@ -158,11 +158,13 @@ service cloud.firestore {
         && request.resource.data.longitude is number
         && request.resource.data.longitude >= -180
         && request.resource.data.longitude <= 180
+        && request.resource.data.accuracy is number
+        && request.resource.data.accuracy >= 0
         && request.resource.data.expiresAt is timestamp
         && request.resource.data.expiresAt > request.time
         && request.resource.data.expiresAt <= request.time + duration.value(4, 'h')
         && request.resource.data.updatedAt == request.time
-        && request.resource.data.keys().hasOnly(['uid','displayName','latitude','longitude','expiresAt','updatedAt']);
+        && request.resource.data.keys().hasOnly(['uid','displayName','latitude','longitude','accuracy','expiresAt','updatedAt']);
       allow delete: if approved() && request.auth.uid == uid;
     }
 
