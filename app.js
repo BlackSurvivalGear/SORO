@@ -1,4 +1,4 @@
-const mobileMenuToggle=document.querySelector('#mobile-menu-toggle'),chatLayout=document.querySelector('.chat-layout'),mapStyleToggle=document.querySelector('#map-style-toggle'),sidebarMapButton=document.querySelector('#sidebar-map'),mapView=document.querySelector('#map-view'),memberMapEl=document.querySelector('#member-map'),mapShareLocation=document.querySelector('#map-share-location'),mapMyLocation=document.querySelector('#map-my-location'),mapSharePanel=document.querySelector('#map-share-panel'),mapShareCancel=document.querySelector('#map-share-cancel'),mapMessage=document.querySelector('#map-message'),mapAddPin=document.querySelector('#map-add-pin'),mapPinForm=document.querySelector('#map-pin-form'),mapPinCancel=document.querySelector('#map-pin-cancel'),mapPinMessage=document.querySelector('#map-pin-message'),mapDrawButton=document.querySelector('#map-draw'),mapDrawForm=document.querySelector('#map-draw-form'),mapDrawClear=document.querySelector('#map-draw-clear'),mapDrawCancel=document.querySelector('#map-draw-cancel'),mapDrawMessage=document.querySelector('#map-draw-message'),mapRefresh=document.querySelector('#map-refresh');
+const mobileMenuToggle=document.querySelector('#mobile-menu-toggle'),chatLayout=document.querySelector('.chat-layout'),mapStyleToggle=document.querySelector('#map-style-toggle'),sidebarMapButton=document.querySelector('#sidebar-map'),mapView=document.querySelector('#map-view'),memberMapEl=document.querySelector('#member-map'),mapShareLocation=document.querySelector('#map-share-location'),mapMyLocation=document.querySelector('#map-my-location'),mapSharePanel=document.querySelector('#map-share-panel'),mapShareCancel=document.querySelector('#map-share-cancel'),mapMessage=document.querySelector('#map-message'),mapDirectionsLink=document.querySelector('#map-directions-link'),mapAddPin=document.querySelector('#map-add-pin'),mapPinForm=document.querySelector('#map-pin-form'),mapPinCancel=document.querySelector('#map-pin-cancel'),mapPinMessage=document.querySelector('#map-pin-message'),mapDrawButton=document.querySelector('#map-draw'),mapDrawForm=document.querySelector('#map-draw-form'),mapDrawClear=document.querySelector('#map-draw-clear'),mapDrawCancel=document.querySelector('#map-draw-cancel'),mapDrawMessage=document.querySelector('#map-draw-message'),mapRefresh=document.querySelector('#map-refresh');
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import { africanProverbs } from './proverbs.js';
 import { getAuth, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, sendEmailVerification, updateProfile, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
@@ -104,20 +104,19 @@ function pinPopup(snapshot,roomId){
   const pin=snapshot.data(),content=document.createElement('div'),title=document.createElement('strong'),note=document.createElement('p'),author=document.createElement('small');
   content.className='soro-pin-details';title.textContent=pin.title;note.textContent=pin.note||'';author.textContent='Pinned by '+(pin.displayName||'Circle member');content.append(title);if(pin.note)content.append(note);content.append(author);
   if(Number.isFinite(pin.latitude)&&pin.latitude>=-90&&pin.latitude<=90&&Number.isFinite(pin.longitude)&&pin.longitude>=-180&&pin.longitude<=180){
-    const directions=document.createElement('button'),routeLink=document.createElement('a');directions.type='button';directions.className='secondary small soro-directions-link';directions.textContent='Directions';
-    routeLink.className='secondary small soro-directions-link hidden';routeLink.textContent='Open directions ↗';routeLink.target='_blank';routeLink.rel='noopener noreferrer';
+    const directions=document.createElement('button');directions.type='button';directions.className='secondary small soro-directions-link';directions.textContent='Directions';
     directions.addEventListener('click',()=>{
       if(!navigator.geolocation||!window.isSecureContext){setMapStatus('Directions need your current GPS location and HTTPS.');return}
-      directions.disabled=true;setMapStatus('Finding your current location for directions…');
+      mapDirectionsLink.classList.add('hidden');directions.disabled=true;setMapStatus('Finding your current location for directions…');
       navigator.geolocation.getCurrentPosition(position=>{
         directions.disabled=false;const {latitude,longitude}=position.coords;
         if(!Number.isFinite(latitude)||!Number.isFinite(longitude)){setMapStatus('Could not get a valid GPS location for directions.');return}
         const url='https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(latitude+','+longitude)+'&destination='+encodeURIComponent(pin.latitude+','+pin.longitude);
-        routeLink.href=url;const opened=window.open(url,'_blank');
+        mapDirectionsLink.href=url;const opened=window.open(url,'_blank');
         if(opened){opened.opener=null;setMapStatus('Directions opened in a new tab. SỌ̀RỌ̀ remains here.')}
-        else{directions.classList.add('hidden');routeLink.classList.remove('hidden');setMapStatus('Tap Open directions to open Google Maps in a new tab.')}
+        else{mapDirectionsLink.classList.remove('hidden');setMapStatus('Tap Open directions above the map to open Google Maps in a new tab.')}
       },error=>{directions.disabled=false;setMapStatus(error.code===1?'Allow location access to get directions from your current position.':'Could not get your current GPS position. Try My Location, then Directions again.')},{enableHighAccuracy:true,maximumAge:0,timeout:20000})
-    });content.append(directions,routeLink)
+    });content.append(directions)
   }
   if(canRemoveCirclePin(pin,roomId)){
     const edit=document.createElement('button'),remove=document.createElement('button'),form=document.createElement('form'),message=document.createElement('small');edit.type='button';edit.className='secondary small';edit.textContent='Edit pin';form.className='soro-pin-edit hidden';
