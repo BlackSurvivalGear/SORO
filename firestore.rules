@@ -168,6 +168,32 @@ service cloud.firestore {
       allow delete: if approved() && request.auth.uid == uid;
     }
 
+    match /circleMapPins/{roomId}/pins/{pinId} {
+      function canUsePins() { return roomId == 'main' ? approved() : canEnterRoom(roomId); }
+      function canManagePins() { return isOwner() || (roomId != 'main' && isAdmin() && room(roomId).data.createdBy == request.auth.uid); }
+      allow read: if canUsePins();
+      allow create: if canUsePins()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() > 0
+        && request.resource.data.displayName.size() <= 60
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 80
+        && request.resource.data.note is string
+        && request.resource.data.note.size() <= 240
+        && request.resource.data.latitude is number
+        && request.resource.data.latitude >= -90
+        && request.resource.data.latitude <= 90
+        && request.resource.data.longitude is number
+        && request.resource.data.longitude >= -180
+        && request.resource.data.longitude <= 180
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.keys().hasOnly(['uid','displayName','title','note','latitude','longitude','createdAt']);
+      allow delete: if canUsePins() && (resource.data.uid == request.auth.uid || canManagePins());
+      allow update: if false;
+    }
+
     match /activityLog/{activityId} {
       allow read: if isOwner();
       allow create: if signedIn()
