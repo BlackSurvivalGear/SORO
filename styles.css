@@ -93,3 +93,11 @@
 #map-stop-sharing:not(.hidden){margin-bottom:14px}
 
 .soro-pin-edit{display:grid;gap:7px;margin-top:8px}.soro-pin-edit.hidden{display:none}.soro-pin-edit label{display:grid;gap:3px}.soro-pin-edit input,.soro-pin-edit textarea,.soro-pin-edit select{width:100%;box-sizing:border-box}.soro-pin-edit small{color:#555}
+
+/* Leaflet loads its stylesheet after this file; keep map popups legible either way. */
+.member-map .leaflet-popup-content-wrapper,.member-map .leaflet-popup-tip{background:#171717;color:#fff}
+.member-map .soro-pin-details{color:#fff}
+.member-map .soro-pin-details small{color:#bbb}
+.member-map .soro-pin-details .secondary{color:#fff;border-color:#777;background:#292929}
+.member-map .soro-pin-details .secondary:hover,.member-map .soro-pin-details .secondary:focus-visible{background:#383838;border-color:#ddd}
+.member-map .soro-pin-edit label{color:#fff}
