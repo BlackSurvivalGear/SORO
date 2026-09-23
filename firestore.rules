@@ -194,6 +194,35 @@ service cloud.firestore {
       allow update: if false;
     }
 
+    match /circleMapDrawings/{roomId}/drawings/{drawingId} {
+      function canUseDrawings() { return roomId == 'main' ? approved() : canEnterRoom(roomId); }
+      function canManageDrawings() { return isOwner() || (roomId != 'main' && isAdmin() && room(roomId).data.createdBy == request.auth.uid); }
+      allow read: if canUseDrawings();
+      allow create: if canUseDrawings()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() > 0
+        && request.resource.data.displayName.size() <= 60
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 80
+        && request.resource.data.points is list
+        && request.resource.data.points.size() >= 2
+        && request.resource.data.points.size() <= 200
+        && request.resource.data.points[0] is list
+        && request.resource.data.points[0].size() == 2
+        && request.resource.data.points[0][0] is number
+        && request.resource.data.points[0][0] >= -90
+        && request.resource.data.points[0][0] <= 90
+        && request.resource.data.points[0][1] is number
+        && request.resource.data.points[0][1] >= -180
+        && request.resource.data.points[0][1] <= 180
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.keys().hasOnly(['uid','displayName','title','points','createdAt']);
+      allow delete: if canUseDrawings() && (resource.data.uid == request.auth.uid || canManageDrawings());
+      allow update: if false;
+    }
+
     match /activityLog/{activityId} {
       allow read: if isOwner();
       allow create: if signedIn()
